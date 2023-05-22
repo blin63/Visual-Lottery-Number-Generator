@@ -19,6 +19,7 @@ namespace VisualLotteryNumberGenerator
         private const int LOTTO_649_MAX = 49;
         private const int LOTTO_MAX_LENGTH = 7;
         private const int LOTTO_649_LENGTH = 6;
+        private const int LOTTO_MIN_NUMBER = 1;
 
         public VisualLotteryNumberGenerator()
         {
@@ -31,21 +32,37 @@ namespace VisualLotteryNumberGenerator
 
             if (selection == 0)
             {
-                //Numbers for Lotto 6/49 and BC 49 are between 0 - 49
-                rn = rnd.Next(LOTTO_649_MAX);
+                //Numbers for Lotto 6/49 and BC 49 are between 1 - 49
+                rn = rnd.Next(LOTTO_MIN_NUMBER, LOTTO_649_MAX);
             }
             else {
-                //Numbers for Lotto Max are between 0 - 50
-                rn = rnd.Next(LOTTO_MAX_MAX);
+                //Numbers for Lotto Max are between 1 - 50
+                rn = rnd.Next(LOTTO_MIN_NUMBER, LOTTO_MAX_MAX);
             }
 
             return rn;
         }
 
         private void populateGeneratedNumbers(int length) {
+            //Populates the generatedNumbers array with the lotto numbers
             for (int i = 0; i < length; i++) {
                 generatedNumbers[i] = selectLottoRng(option);
+
+                while (numberDrawed(generatedNumbers[i], i)) {
+                    generatedNumbers[i] = selectLottoRng(option);
+                }
             }
+        }
+
+        private bool numberDrawed(int number, int index) {
+            //Check if number drawed is unique not including the number just drawed
+            for (int i = 0; i < index; i++) {
+                if (number == generatedNumbers[i]) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private void generateLottoMaxNumbers() {
@@ -60,7 +77,15 @@ namespace VisualLotteryNumberGenerator
             populateGeneratedNumbers(LOTTO_649_LENGTH);
         }
 
+        private void sortGeneratedNumbers() {
+            //Sort the array in ascending order
+            Array.Sort(generatedNumbers);
+        }
+
         private void printNumbers() {
+            //Sort the generatedNumbers array
+            sortGeneratedNumbers();
+
             //Print numbers to screen
             String lottoNumbers = "";
 
@@ -71,6 +96,7 @@ namespace VisualLotteryNumberGenerator
             randomNumbers.Text = lottoNumbers;
         }
 
+        //Control logic for buttons and labels on screen
         private void lottoMaxBtn_Click(object sender, EventArgs e)
         {
             lottoMaxBtn.Hide();
